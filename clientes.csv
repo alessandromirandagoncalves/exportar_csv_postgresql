@@ -1,5 +1,5 @@
-id;nome;telefone;data
-1;Fulano;23232323;10/03/2022
-2;Beltrano;;20/04/2022
-3;Sicrano;2392932;21/04/2022
-4;Abrahão;3433354;28/04/2022
+id;nome;telefone;data;Status
+20;Fulano;23232323;10/03/2022;True
+21;Beltrano;;20/04/2022;True
+22;Sicrano;2392932;21/04/2022;False
+23;Abrahão;3433354;28/04/2022;True

@@ -29,37 +29,38 @@ def conectar_banco():  # Conecta ao banco de dados e deixa aconexão aberta em "
                                password='teste')
         print('Conexão com SGBD com sucesso.')
     except sql.DatabaseError as e:
-        print('*** ERRO: Não foi possível conectar ao banco {} no servidor {} porta:5432.'.format(database_name,database_ip))
+        print('*** ERRO: Não foi possível conectar ao banco {} no servidor {} porta:5432.')
         sys.exit(0)
     return conexao
 
 # Função para inserir dados no banco
-def inserir_db(con,sql):
+def inserir_db(con,query):
     cur = con.cursor()
     try:
-        cur.execute(sql)
+        cur.execute(query)
         con.commit()
-    except (Exception, psycopg2.DatabaseError) as error:
+    except (Exception, sql.DatabaseError) as error:
         print("** ERROR: %s" % error)
         con.rollback()
         cur.close()
-        return 1
+        sys.exit(0)
     cur.close()
 
 #exporta dados do dataframe para a tabela informada
 def exportar(conexao,nome_tabela):
     try:
         print('Lendo arquivo ', nome_tabela)
-        with open(nome_tabela+'.csv','r') as csv_file:
+        with open(nome_tabela+'.csv','r', encoding='ISO-8859-1') as csv_file:
             planilha2 = csv.reader(csv_file, delimiter=';',quotechar="'")
             planilha = DictReader(csv_file)
-            print('Gerando tabela ' + nome_tabela + '...')
+            print('Inserindo na tabela ' + nome_tabela + '...')
 
             # Extrai os nomes dos campos (linha 1)
             campos = ''.join(planilha.fieldnames)
             campos = campos.replace(";",",")
             qt_colunas = campos.count(',') + 1
             valores = " values "
+            registros = 0
             for row in planilha2:
                 valor = ""
                 valores = valores + "("
@@ -71,6 +72,7 @@ def exportar(conexao,nome_tabela):
                 valores = valores + valor
                 valores = valores.replace(", )",")")
                 valores = valores + "),"
+                registros+=1
 
             valores = valores.replace(", )", ")")
             valores = valores[:len(valores)-1]
@@ -86,7 +88,7 @@ def exportar(conexao,nome_tabela):
         print("*** ERRO: ".format(e))
         sys.exit()
 
-    print('Registros incluídos com sucesso')
+    print(registros,' registros incluídos com sucesso')
 
     return insert
 
@@ -98,10 +100,7 @@ if __name__ == "__main__":
     ## validar_arquivo_ocor(planilha) # Caso queira validar
     conexao = conectar_banco()
     insert = exportar(conexao,"clientes")
-    retorno = inserir_db(conexao,insert)
-    #Caso retornoe com erro ao inserir, encerra o programa
-    if (retorno == 1):
-        sys(0)
+    inserir_db(conexao,insert)
 
     tempo_final = datetime.datetime.now()
     tempo_total = tempo_final-tempo_inicial
