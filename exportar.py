@@ -7,8 +7,6 @@
 # O cabeçalho (header) da planilha deve conter os nomes dos campos
 # a serem exportados
 
-import pandas as pd         # Biblioteca com funções de ETL
-import pandera as pa        # Biblioteca com funções de ETL
 import csv
 from csv import DictReader
 import sys                  # Biblioteca com funções de sistema
@@ -24,11 +22,7 @@ def conectar_banco():  # Conecta ao banco de dados e deixa aconexão aberta em "
     try:
         print('Conectando com Postgresql')
         # Credenciais para conexão
-        database_username = 'teste'
-        database_password = 'teste'
-        database_ip = '127.0.0.1'
-        database_name = 'bdteste'
-        # Primeiramente se conecta ao Mysql
+        # Primeiramente se conecta ao banco
         conexao = sql.connect(host='localhost',
                                database='dbteste',
                                user='postgres',
@@ -105,6 +99,7 @@ if __name__ == "__main__":
     conexao = conectar_banco()
     insert = exportar(conexao,"clientes")
     retorno = inserir_db(conexao,insert)
+    #Caso retornoe com erro ao inserir, encerra o programa
     if (retorno == 1):
         sys(0)
 
